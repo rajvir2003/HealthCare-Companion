@@ -15,6 +15,10 @@ app.get("/", (req, res) => {
 
 import { getDiagnosis } from './controllers/symp.js';
 
+app.get("/predict-disease", (req, res) => {
+  res.render("disease-prediction.ejs");
+});
+
 app.post("/predict-disease", async (req, res) => {
   const userSymptoms = req.body.symptoms;
   const gender = req.body.gender;
