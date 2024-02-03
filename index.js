@@ -13,9 +13,25 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
-app.get("/predict-disease", (req, res) => {
+import { getDiagnosis } from './controllers/symp.js';
+
+app.post("/predict-disease", async (req, res) => {
+  const userSymptoms = req.body.symptoms;
+  const gender = req.body.gender;
+  const yearOfBirth = req.body.yearOfBirth;
+  try {
+    console.log(userSymptoms);
+    const diseases = await getDiagnosis(userSymptoms, gender, yearOfBirth);
+
+    console.log(diseases);
+    res.render("result.ejs", { diseases });
+  } catch (error) {
+    // Handle errors appropriately
+    res.status(500).send('Internal Server Error');
+  }
   res.render("disease-prediction.ejs");
 });
+
 
 app.get("/news", async (req, res) => {
   try {
