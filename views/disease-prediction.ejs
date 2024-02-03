@@ -1,0 +1,44 @@
+<%- include("partials/header.ejs") %>
+
+<div class="container p-3 mt-2">
+    <h2>Fill the form below:</h2>
+    <form class="form-container row g-3 p-3 mt-4" method="POST">
+        <div class="col-md-6">
+          <label for="Symptom-1" class="form-label">Symptom-1</label>
+          <input type="text" class="form-control" id="Symptom-1" required>
+        </div>
+        <div class="col-md-6">
+          <label for="Symptom-2" class="form-label">Symptom-2</label>
+          <input type="text" class="form-control" id="Symptom-2" required>
+        </div>
+        <div class="col-md-6">
+          <label for="Symptom-3" class="form-label">Symptom-3</label>
+          <input type="text" class="form-control" id="Symptom-3" placeholder="Optional">
+        </div>
+        <div class="col-md-6">
+          <label for="Symptom-4" class="form-label">Symptom-4</label>
+          <input type="text" class="form-control" id="Symptom-4" placeholder="Optional">
+        </div>  
+        <div class="col-md-4">
+          <label for="Gender" class="form-label">Gender</label>
+          <select id="Gender" class="form-select">
+            <option selected disabled>Select...</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="age" class="form-label">Age</label>
+          <input type="number" class="form-control" id="age" required>
+        </div>
+        <div class="col-md-4">
+          <label for="Weight" class="form-label">Weight</label>
+          <input type="number" class="form-control" id="Weight" required>
+        </div>
+        <div class="col-12 p-2 mb-1">
+            <button type="submit" class="btn btn-primary col-2">Submit Details</button>
+        </div>
+      </form>
+</div>
+
+<%- include("partials/footer.ejs") %>

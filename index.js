@@ -13,6 +13,10 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
+app.get("/predict-disease", (req, res) => {
+  res.render("disease-prediction.ejs");
+});
+
 app.get("/news", async (req, res) => {
   try {
     const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${newsAPI_Key}`);
