@@ -1,18 +1,17 @@
 <%- include("partials/header.ejs") %>
-
     <% if(locals.news) { %>
-    <div class="d-flex flex-row flex-wrap justify-content-around mt-5">
-        <% for(let i = 0; i < news.length; i++) { %>
-            <div class="card mb-5" style="width: 18rem;">
-                <img src="<%= news[i].urlToImage %>" class="card-img-top" alt="image" height="200">
-                <div class="card-body">
-                  <h5 class="card-title"><%= news[i].title %></h5>
-                  <p class="card-text"> <%= news[i].content %> </p>
-                  <a href="<%= news[i].url %>" class="btn btn-danger">Read more</a>
+        <div class="d-flex flex-row flex-wrap justify-content-around mt-5 container">
+            <% for(let i = 0; i < news.length; i++) { %>
+                <div class="card mb-5 news-container" style="width: 20rem;">
+                    <img src="<%= news[i].urlToImage %>" class="card-img-top newsImage" alt="image">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= news[i].title.slice(0,60) %></h5>
+                        <p class="card-text"> <%= news[i].content.slice(0,120) %>... </p>
+                        <a href="<%= news[i].url %>" class="btn btn-danger">Read more</a>
+                    </div>
                 </div>
-            </div>
-        <% } %>
-    </div>
+            <% } %>
+        </div>
     <% } %>
 
 <%- include("partials/footer.ejs") %>
