@@ -29,8 +29,8 @@ app.post("/predict-disease", async (req, res) => {
     console.log(result);
     res.render("disease-prediction.ejs", { diseases : result });
   } catch (error) {
-    // Handle errors appropriately
-    res.status(500).send('Internal Server Error');
+    console.log(error.message);
+    res.render("disease-prediction.ejs", { error : "Something went wrong! Please try again" });
   }
 });
 

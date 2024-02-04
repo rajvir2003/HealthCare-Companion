@@ -1,5 +1,12 @@
 <%- include("partials/header.ejs") %>
 
+<% if(locals.error) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong> <%= error %> </strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
 <div class="container p-3 mt-2">
     <h2>Fill the form below:</h2>
     <form class="form-container row g-3 p-3 mt-4" method="POST" action="/predict-disease">
