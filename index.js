@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
+import { getDiagnosis } from './controllers/symp.js';
 
 const app = express();
 const port = 3000;
@@ -13,8 +14,6 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
-import { getDiagnosis } from './controllers/symp.js';
-
 app.get("/predict-disease", (req, res) => {
   res.render("disease-prediction.ejs");
 });
@@ -25,15 +24,14 @@ app.post("/predict-disease", async (req, res) => {
   const yearOfBirth = req.body.yearOfBirth;
   try {
     console.log(userSymptoms);
-    const diseases = await getDiagnosis(userSymptoms, gender, yearOfBirth);
+    const result = await getDiagnosis(userSymptoms, gender, yearOfBirth);
 
-    console.log(diseases);
-    res.render("result.ejs", { diseases });
+    console.log(result);
+    res.render("disease-prediction.ejs", { diseases : result });
   } catch (error) {
     // Handle errors appropriately
     res.status(500).send('Internal Server Error');
   }
-  res.render("disease-prediction.ejs");
 });
 
 

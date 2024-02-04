@@ -28,6 +28,17 @@
             <button type="submit" class="btn btn-primary col-2">Submit Details</button>
         </div>
     </form>
+
+    <% if(locals.diseases) { %>
+      <h2 class="mt-4 p-2">Diagnosis Result:</h2>
+      <ol class="list-group list-group-numbered">
+        <% diseases.forEach((item) => { %>
+          <li class="list-group-item"><%= item %></li>
+        <% }) %>
+      </ol>
+    <% } %>
 </div>
+
+
 
 <%- include("partials/footer.ejs") %>
