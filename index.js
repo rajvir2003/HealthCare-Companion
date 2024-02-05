@@ -32,7 +32,6 @@ app.get("/predict-disease", (req, res) => {
 });
 
 app.post("/predict-disease", async (req, res) => {
-
   try {
     const userSymptoms = req.body.symptoms || [];
     const gender = req.body.gender;

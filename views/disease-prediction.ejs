@@ -1,11 +1,5 @@
 <%- include("partials/header.ejs") %>
 
-<script src="/select/jquery.min.js"></script>
-
-<link rel="stylesheet" href="/select/select2.min.css" />
-<script src="/select/select2.min.js"></script>
-
-
 <% if(locals.error) { %>
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
     <strong><%= error %></strong>
@@ -42,66 +36,5 @@
   </div>
 
   </div>
-
-
-<script>
- $(document).ready(function () {
-    // getting symptoms from backend
-    $.get('/symptoms', function (data) {
-        const symptomsFormatted = data.map(symptom => ({ id: symptom.ID, text: symptom.Name }));
-
-        // Initialize Select2
-        $('#Symptoms').select2({
-            data: symptomsFormatted,
-            placeholder: 'Search and select symptoms',
-            multiple: true,
-            allowClear: true,
-        });
-    });
-
-    // Handle form submission
-    $("#diseaseForm").submit(function (event) {
-        event.preventDefault(); 
-
-        const selectedSymptoms = $("#Symptoms").val() || [];
-        console.log("Selected Symptoms:", selectedSymptoms);
-
-        const gender = $("#Gender").val();
-        console.log(gender);
-        const age = $("#age").val();
-        console.log(age);
-
-        $.ajax({
-            type: 'POST',
-            url: '/predict-disease',
-            data: {
-                symptoms: selectedSymptoms,
-                gender: gender,
-                yearOfBirth: age
-            },
-            dataType: 'json', 
-            success: function (response) {
-    console.log("Server response:", response);
-
-    //to show result 
-    const resultContainer = $('#resultContainer');
-    resultContainer.empty();
-    
-    if (response.diseases && response.diseases.length > 0) {
-    resultContainer.append('<h2 class="mt-4 p-2">Diagnosis Result:</h2>');
-    resultContainer.append('<ol class="list-group list-group-numbered">');
-    response.diseases.forEach((disease) => {
-        resultContainer.append(`<li class="list-group-item">${disease}</li>`);
-    });
-    resultContainer.append('</ol>');
-}},
-            error: function(error) {
-                console.error("Error:", error);
-                $('#resultContainer').html('<p>Error fetching diseases. Please try again.</p>');
-            }
-        });
-    });
-});
-</script>
 
 <%- include("partials/footer.ejs") %>
