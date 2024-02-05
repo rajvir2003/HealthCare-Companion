@@ -3,8 +3,8 @@ import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 
 const AUTH_SERVICE_URL = 'https://authservice.priaid.ch/login';
-const API_KEY = 'Fd34D_GMAIL_COM_AUT';
-const SECRET_KEY = 'Ed7y5CZf3k4K6Msj2';
+const API_KEY = 'We4c3_GMAIL_COM_AUT';
+const SECRET_KEY = 'k4DKt68FgGz3p2TBr';
 
 const getAccessToken = async () => {
     const uri = AUTH_SERVICE_URL;
@@ -39,29 +39,19 @@ const readSymptomsFromFile = async () => {
   }
 };
 
-// Function to perform Symptomate API call
+// symptomate API call
 export const getDiagnosis = async (userSymptoms, gender, yearOfBirth) => {
   try {
-    // Obtain the access token
+    // getting the access token
     const token = await getAccessToken();
 
-    // Read symptoms from the local JSON file
-    const allSymptoms = await readSymptomsFromFile();
-
-    // Map user symptoms to corresponding IDs
-    const symptomIds = userSymptoms.map(userSymptom => {
-      const matchingSymptom = allSymptoms.find(apiSymptom => apiSymptom.Name.toLowerCase() === userSymptom.toLowerCase());
-      return matchingSymptom ? matchingSymptom.ID : null;
-    });
-    console.log(symptomIds);
-
-    // API endpoint
+    // API endpoint to get diseases
     const apiUrl = 'https://healthservice.priaid.ch/diagnosis';
 
     // Make the request
     const response = await axios.get(apiUrl, {
       params: {
-        symptoms: JSON.stringify(symptomIds),
+        symptoms: JSON.stringify(userSymptoms),
         gender,
         year_of_birth: yearOfBirth,
         token,
