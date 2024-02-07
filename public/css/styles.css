@@ -12,3 +12,16 @@
     object-fit: cover;
     height: 200px;
 }
+
+.background {
+    height: 88vh;
+    background-image: url("/images/background.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.intro {
+    line-height: 1.6;
+    font-size: 1.4rem;
+}
