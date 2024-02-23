@@ -3,8 +3,8 @@ import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 
 const AUTH_SERVICE_URL = 'https://authservice.priaid.ch/login';
-const API_KEY = 'We4c3_GMAIL_COM_AUT';
-const SECRET_KEY = 'k4DKt68FgGz3p2TBr';
+const API_KEY = 'Jy36B_GMAIL_COM_AUT';
+const SECRET_KEY = 'Xt95DwTm2b3B4Pxc7';
 
 const getAccessToken = async () => {
     const uri = AUTH_SERVICE_URL;

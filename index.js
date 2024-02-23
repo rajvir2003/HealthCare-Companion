@@ -3,18 +3,96 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import { getDiagnosis } from './controllers/symp.js';
 import * as fs from 'fs/promises';
+import pg from "pg";
+import bcrypt from "bcrypt";
+import session from "express-session";
+import passport from "passport";
+import { Strategy } from "passport-local";
 
 const app = express();
 const port = 3000;
 const newsAPI_Key = "7f5b3c4b4e2f4ba9a04cbc3350388f72";
+const saltRounds = 10;
 
+app.use(session({
+  secret: "encriptionKey",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 1000*60*60*24
+  }
+}));
 
 app.use(bodyParser.urlencoded({ extended : true }));
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-  res.render("index.ejs");
+app.use(passport.initialize());
+app.use(passport.session());
+
+const db = new pg.Client({
+  user: "postgres",
+  host: "localhost",
+  database: "healthAssist",
+  password: "password",
+  port: 5432
 });
+db.connect();
+
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
+});
+
+app.get("/register", (req, res) => {
+  res.render("register.ejs");
+})
+
+app.get("/", (req, res) => {
+  console.log(req.user);
+  if (req.isAuthenticated()) {
+    res.render("index.ejs");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.post("/register", async (req, res) => {
+  const username = req.body.username;
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  try {
+    const checkResult = await db.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if(checkResult.rows.length > 0){
+      res.send("Email already exists. Try logging in.");
+    } else {
+      bcrypt.hash(password, saltRounds, async (error, hash) => {
+        if (error) {
+          console.log("Error hashing password: ", error);
+        } else {
+          const result = await db.query(
+            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
+            [username, email, hash]
+          );
+          const user = result.rows[0];
+          req.login(user, (error) => {
+            console.log(error);
+            res.redirect("/");
+          })
+        }
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/login", passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/login"
+}));
 
 app.get("/symptoms", async (req, res) => {
   try {
@@ -62,6 +140,42 @@ app.get("/news", async (req, res) => {
     res.status(500);
   }
 });
+
+passport.use(new Strategy(async function verify(username, password, cb) {
+  try {
+    const result = await db.query(
+      "SELECT * FROM users WHERE email = $1",
+      [username]
+    );
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
+      const storedHashedPassword = user.password;
+      bcrypt.compare(password, storedHashedPassword, (error, result) => {
+        if (error) {
+          return cb(error);
+        } else {
+          if (result) {
+            return cb(null, user);
+          } else {
+            console.log("wrong password");
+            return cb(null, false);
+          }
+        }
+      })
+    } else {
+      return cb("User not found");
+    }
+  } catch (error) {
+    return cb(error);
+  }
+}));
+
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
+})
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
