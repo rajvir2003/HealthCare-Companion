@@ -2,6 +2,7 @@ import express, { response } from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
 import { getDiagnosis } from './controllers/symp.js';
+import { query } from "./controllers/chatbot.js";
 import * as fs from 'fs/promises';
 import pg from "pg";
 import bcrypt from "bcrypt";
@@ -24,6 +25,7 @@ app.use(session({
 }));
 
 app.use(bodyParser.urlencoded({ extended : true }));
+app.use(bodyParser.json());
 app.use(express.static("public"));
 
 app.use(passport.initialize());
@@ -130,7 +132,6 @@ app.post("/predict-disease", async (req, res) => {
   }
 });
 
-
 app.get("/news", async (req, res) => {
   if (req.isAuthenticated()) {
     try {
@@ -146,6 +147,23 @@ app.get("/news", async (req, res) => {
     }
   } else {
     res.redirect("/login");
+  }
+});
+
+app.post('/api/query', async (req, res) => {
+  try {
+    console.log('Incoming Request Body:', req.body);
+    const data = req.body.inputs;
+    console.log(data);
+    // Simulate a response for testing purposes
+    query(data).then((response) => {
+      console.log(JSON.stringify(response));
+      res.json(response);
+ 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

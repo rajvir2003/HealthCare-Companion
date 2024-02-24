@@ -32,3 +32,33 @@
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.201);
 }
+
+.chat-container {
+    max-width: 470px;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.chat-messages {
+    padding: 10px;
+    height: 370px;
+    overflow-y: scroll;
+}
+.user-input {
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    border: none;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    outline: none;
+}
+.send-button {
+    width: calc(100% - 20px);
+    margin: 10px;
+}
+.chatbot-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+}
