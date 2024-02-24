@@ -106,7 +106,11 @@ app.get("/symptoms", async (req, res) => {
 });
 
 app.get("/predict-disease", (req, res) => {
-  res.render("disease-prediction.ejs");
+  if (req.isAuthenticated()) {
+    res.render("disease-prediction.ejs");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/predict-disease", async (req, res) => {
@@ -128,16 +132,20 @@ app.post("/predict-disease", async (req, res) => {
 
 
 app.get("/news", async (req, res) => {
-  try {
-    const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${newsAPI_Key}`);
-    let newsArtices = response.data.articles;
-    const result = newsArtices.filter((news) => news.urlToImage != null && news.content != null);
-    console.log(result);
-    res.render("news.ejs", { news : result });
-  }
-  catch (error) {
-    console.log(error.message);
-    res.status(500);
+  if (req.isAuthenticated()) {
+    try {
+      const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${newsAPI_Key}`);
+      let newsArtices = response.data.articles;
+      const result = newsArtices.filter((news) => news.urlToImage != null && news.content != null);
+      console.log(result);
+      res.render("news.ejs", { news : result });
+    }
+    catch (error) {
+      console.log(error.message);
+      res.status(500);
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
