@@ -1,0 +1,27 @@
+<%- include("partials/header.ejs") %>
+
+<div class="container mt-5">
+  <h2>User Profile</h2>
+  <div class="card mb-3">
+    <div class="card-header">
+      Personal Information
+    </div>
+    <div class="card-body">
+
+      <p>Email: <%= user.email %></p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      Health Metrics
+    </div>
+    <div class="card-body">
+      <p>Age: <%= user.age %></p>
+      <p>Gender: <%= user.gender %></p>
+    </div>
+  </div>
+
+</div>
+
+<%- include("partials/footer.ejs") %>

@@ -48,7 +48,13 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 })
 
+app.get("/profile", (req, res) => {
+  const user=req.user;
+  res.render("profile.ejs", { user });
+});
+
 app.get("/", (req, res) => {
+  console.log("this is user");
   console.log(req.user);
   if (req.isAuthenticated()) {
     res.render("index.ejs");
