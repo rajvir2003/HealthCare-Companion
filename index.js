@@ -49,8 +49,15 @@ app.get("/register", (req, res) => {
 })
 
 app.get("/profile", (req, res) => {
-  const user=req.user;
-  res.render("profile.ejs", { user });
+  if (req.isAuthenticated()) {
+    const user=req.user;
+    res.render("profile.ejs", {
+      user: user,
+      currYear: new Date().getFullYear()
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/", (req, res) => {
@@ -67,6 +74,8 @@ app.post("/register", async (req, res) => {
   const username = req.body.username;
   const email = req.body.email;
   const password = req.body.password;
+  const yearOfBirth = req.body.yearOfBirth;
+  const gender = req.body.gender;
   
   try {
     const checkResult = await db.query(
@@ -81,8 +90,8 @@ app.post("/register", async (req, res) => {
           console.log("Error hashing password: ", error);
         } else {
           const result = await db.query(
-            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
-            [username, email, hash]
+            "INSERT INTO users (username, yearOfBirth, gender, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [username, yearOfBirth, gender, email, hash]
           );
           const user = result.rows[0];
           req.login(user, (error) => {

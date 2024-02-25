@@ -1,13 +1,14 @@
 <%- include("partials/header.ejs") %>
 
-<div class="container mt-5">
+<div class="container p-5">
   <h2>User Profile</h2>
-  <div class="card mb-3">
+  <div class="card mt-4 mb-3">
     <div class="card-header">
       Personal Information
     </div>
     <div class="card-body">
 
+      <p>Username: <%= user.username %></p>
       <p>Email: <%= user.email %></p>
     </div>
   </div>
@@ -17,7 +18,7 @@
       Health Metrics
     </div>
     <div class="card-body">
-      <p>Age: <%= user.age %></p>
+      <p>Age: <%= currYear - user.yearofbirth %></p>
       <p>Gender: <%= user.gender %></p>
     </div>
   </div>
