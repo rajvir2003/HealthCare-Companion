@@ -48,11 +48,14 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 })
 
-app.get("/profile", (req, res) => {
+app.get("/profile", async (req, res) => {
   if (req.isAuthenticated()) {
-    const user=req.user;
+    const user = await db.query(
+      "SELECT * FROM users WHERE id = $1",
+      [req.user.id]
+    );
     res.render("profile.ejs", {
-      user: user,
+      user: user.rows[0],
       currYear: new Date().getFullYear()
     });
   } else {
@@ -110,6 +113,31 @@ app.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/login"
 }));
+
+app.post("/editProfile", async (req, res) => {
+  const id = req.body.id;
+  const username = req.body.username;
+  const email = req.body.email;
+  const gender = req.body.gender;
+  const yearOfBirth = req.body.yearofbirth;
+  
+  try {
+    await db.query(
+      "UPDATE users SET username = $1, email = $2, gender = $3, yearofbirth = $4 WHERE id = $5",
+      [username, email, gender, yearOfBirth, id]
+    );
+    res.redirect("/profile");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/logout", (req, res) => {
+  req.logout((error) => {
+    if (error) console.log(error);
+    res.redirect("/login");
+  })
+});
 
 app.get("/symptoms", async (req, res) => {
   try {
