@@ -48,11 +48,19 @@
         <div class="row">
           <div class="col-6">
             <label for="gender" class="form-label">Gender:</label>
-            <input type="text" class="form-control" id="gender" name="gender" value="<%= user.gender %>">
+            <select name="gender" id="gender" class="form-control">
+              <% if(user.gender == "Male") { %> 
+              <option value="Male" selected>Male</option>
+              <option value="Female">Female</option>
+              <% } else { %>
+              <option value="Male">Male</option>
+              <option value="Female" selected>Female</option>
+              <% } %>
+            </select>
           </div>
           <div class="col-6">
             <label for="yearofbirth" class="form-label">Year of Birth:</label>
-            <input type="text" class="form-control" id="yearofbirth" name="yearofbirth" value="<%= user.yearofbirth %>">
+            <input type="number" class="form-control" id="yearofbirth" name="yearofbirth" value="<%= user.yearofbirth %>">
           </div>
         </div>
 
