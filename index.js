@@ -8,6 +8,7 @@ import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "./controllers/auth.js";
+import doctorpassport from "./controllers/doctorauth.js";
 
 const app = express();
 const port = 3000;
@@ -46,16 +47,42 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 })
 
-app.get("/profile", (req, res) => {
+app.get("/profile", async (req, res) => {
   if (req.isAuthenticated()) {
-    const user=req.user;
+    const user = await db.query(
+      "SELECT * FROM users WHERE id = $1",
+      [req.user.id]
+    );
     res.render("profile.ejs", {
-      user: user,
+      user: user.rows[0],
       currYear: new Date().getFullYear()
     });
   } else {
     res.redirect("/login");
   }
+});
+app.post("/editProfile", async (req, res) => {
+  const id = req.body.id;
+  const username = req.body.username;
+  const email = req.body.email;
+  const gender = req.body.gender;
+  const yearOfBirth = req.body.yearofbirth;
+  
+  try {
+    await db.query(
+      "UPDATE users SET username = $1, email = $2, gender = $3, yearofbirth = $4 WHERE id = $5",
+      [username, email, gender, yearOfBirth, id]
+    );
+    res.redirect("/profile");
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/logout", (req, res) => {
+  req.logout((error) => {
+    if (error) console.log(error);
+    res.redirect("/login");
+  })
 });
 
 app.get("/", (req, res) => {
@@ -267,6 +294,90 @@ app.post('/api/query', async (req, res) => {
   }
 });
 
+
+//doctr
+
+// Doctor login route
+app.get("/doctor/login", (req, res) => {
+  res.render("doctor-login.ejs");
+});
+
+// Doctor registration route
+app.get("/doctor/register", (req, res) => {
+  res.render("doctor-register.ejs");
+});
+
+// Doctor profile route
+app.get("/doctor/profile", (req, res) => {
+  if (req.isAuthenticated()) {
+    const doctor = req.user;
+    res.render("doctor-profile.ejs", {
+      doctor: doctor,
+      currYear: new Date().getFullYear()
+    });
+  } else {
+    res.redirect("/doctor/login");
+  }
+});
+
+// Index route
+app.get("/", (req, res) => {
+  console.log("this is user");
+  console.log(req.user);
+  res.render("index.ejs");
+});
+
+// Doctor registration route
+app.post("/doctor/register", async (req, res) => {
+  const username = req.body.username;
+  const email = req.body.email;
+  const password = req.body.password;
+  // Additional fields for doctors
+  const specialization = req.body.specialization;
+  const experience = req.body.experience;
+  
+  try {
+    const checkResult = await db.query(
+      "SELECT * FROM doctors WHERE email = $1",
+      [email]
+    );
+    if(checkResult.rows.length > 0){
+      res.send("Email already exists. Try logging in.");
+    } else {
+      bcrypt.hash(password, saltRounds, async (error, hash) => {
+        if (error) {
+          console.log("Error hashing password: ", error);
+        } else {
+          const result = await db.query(
+            "INSERT INTO doctors (username, email, password, specialization, experience) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [username, email, hash, specialization, experience]
+          );
+          const doctor = result.rows[0];
+          req.login(doctor, (error) => {
+            console.log(error);
+            res.redirect("/");
+          })
+        }
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// Doctor login route
+app.post("/doctor/login", passport.authenticate("local", {
+  successRedirect: "/doctor/profile",
+  failureRedirect: "/doctor/login"
+}));
+
+
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });
+
+
+
+
+

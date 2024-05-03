@@ -75,3 +75,10 @@
     padding: 0;
     border-radius: 50%;
 }
+
+
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 25px;
+}

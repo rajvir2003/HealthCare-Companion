@@ -4,12 +4,12 @@ import pg from "pg";
 import bcrypt from "bcrypt";
 
 const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "healthAssist",
-    password: "",
-    port: 5432
-  });
+  user: "postgres",
+  host: "localhost",
+  database: "healthAssist",
+  password: "Manni@1025",
+  port: 5432
+});
   db.connect();
 
 passport.use(new Strategy(async function verify(username, password, cb) {
