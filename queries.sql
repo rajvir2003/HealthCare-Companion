@@ -7,18 +7,13 @@ CREATE TABLE users (
 	password VARCHAR(100) NOT NULL
 );
 
-
-CREATE TABLE doctor (
-    doctor_id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    specialty VARCHAR(50),
-    bio TEXT,
-    office_address TEXT,
-    contact_number VARCHAR(15),
-    CONSTRAINT valid_specialty CHECK (length(specialty) > 0),
-    CONSTRAINT valid_bio CHECK (length(bio) > 0),
-    CONSTRAINT valid_address CHECK (length(office_address) > 0),
-    CONSTRAINT valid_contact_number CHECK (length(contact_number) > 0)
+CREATE TABLE doctors (
+	doctor_id SERIAL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	contact_number TEXT NOT NULL,
+	specialization TEXT NOT NULL,
+	email TEXT NOT NULL,
+	password TEXT NOT NULL
 );
 
 CREATE TABLE appointment (

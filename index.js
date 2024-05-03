@@ -35,7 +35,7 @@ const db = new pg.Pool({
   user: "postgres",
   host: "localhost",
   database: "healthAssist",
-  password: "pass",
+  password: "password",
   port: 5432
 });
 
@@ -150,11 +150,11 @@ app.get("/doctors", async (req, res) => {
 
   if (req.isAuthenticated()) {
     try {
-      const result = await db.query('SELECT * FROM doctor');
+      const result = await db.query('SELECT * FROM doctors');
       const doctors = result.rows;
       var doctorId = doctors.doctor_id;
       const user_id = req.user.id;
-      res.render('doctors.ejs', { doctors, doctorId,user_id});
+      res.render('doctors.ejs', { doctors, doctorId ,user_id});
 
     } catch (err) {
       console.error(err);
@@ -338,15 +338,38 @@ app.post('/api/query', async (req, res) => {
 
 // Doctor login route
 app.get("/doctor/login", (req, res) => {
-  res.render("doctor-login.ejs");
+  res.render("doctor/login.ejs");
 });
 
 // Doctor registration route
 app.get("/doctor/register", (req, res) => {
-  res.render("doctor-register.ejs");
+  res.render("doctor/register.ejs");
 });
 
 // Doctor profile route
+app.get("/dashboard", async (req, res) => {
+  if(req.isAuthenticated()) {
+    const doctorId = req.user.doctor_id;
+    console.log(req.user)
+    const statusFilter = req.query.status || 'pending'; 
+
+    try {
+      const result = await db.query(
+        "SELECT * FROM appointment WHERE doctor_id = $1 AND status = $2 ORDER BY date, time",
+        [doctorId, statusFilter]
+      );
+
+      const appointments = result.rows;
+
+      res.render("doctor/dashboard.ejs", { appointments, statusFilter });
+    } catch (error) {
+      console.error("Error fetching user appointments:", error.message);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/doctor/register");
+  }
+})
 app.get("/doctor/profile", (req, res) => {
   if (req.isAuthenticated()) {
     const doctor = req.user;
@@ -368,12 +391,11 @@ app.get("/", (req, res) => {
 
 // Doctor registration route
 app.post("/doctor/register", async (req, res) => {
-  const username = req.body.username;
+  const name = req.body.name;
+  const contact_number = req.body.contact_number;
+  const specialization = req.body.specialization;
   const email = req.body.email;
   const password = req.body.password;
-  // Additional fields for doctors
-  const specialization = req.body.specialization;
-  const experience = req.body.experience;
   
   try {
     const checkResult = await db.query(
@@ -388,13 +410,13 @@ app.post("/doctor/register", async (req, res) => {
           console.log("Error hashing password: ", error);
         } else {
           const result = await db.query(
-            "INSERT INTO doctors (username, email, password, specialization, experience) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-            [username, email, hash, specialization, experience]
+            "INSERT INTO doctors (name, contact_number, specialization, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [name, contact_number, specialization, email, hash]
           );
           const doctor = result.rows[0];
           req.login(doctor, (error) => {
             console.log(error);
-            res.redirect("/");
+            res.redirect("/dashboard");
           })
         }
       });
@@ -405,8 +427,8 @@ app.post("/doctor/register", async (req, res) => {
 });
 
 // Doctor login route
-app.post("/doctor/login", passport.authenticate("local", {
-  successRedirect: "/doctor/profile",
+app.post("/doctor/login", passport.authenticate("doctor", {
+  successRedirect: "/dashboard",
   failureRedirect: "/doctor/login"
 }));
 
