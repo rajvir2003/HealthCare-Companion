@@ -1,9 +1,9 @@
 export const query = async (data) => {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5",
+      "https://api-inference.huggingface.co/models/google/gemma-1.1-7b-it",
       {
         headers: {
-          Authorization: "Bearer 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",
+          Authorization: "Bearer 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",
           "Content-Type": "application/json", // Make sure to set the Content-Type header
         },
         method: "POST",

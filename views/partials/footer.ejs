@@ -1,10 +1,10 @@
 </main>
 
-<button type="button" class="btn btn-dark chatbot-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@fat"><img src="	https://jungleworks.com/wp-content/uploads/2021/04/1_9I6EIL5NG20A8se5afVmOg.gif" alt="" height="65"></button>
+<button type="button" class="btn btn-dark chatbot-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@fat"><img src="	https://jungleworks.com/wp-content/uploads/2021/04/1_9I6EIL5NG20A8se5afVmOg.gif" alt="" height="95"></button>
 
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content"> 
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">Health-Assist AI Chatbot</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -20,11 +20,16 @@
     </div>
   </div>
 
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
 integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="/select/jquery.min.js"></script>
 <script src="/select/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function () {
     // getting symptoms from backend
@@ -40,6 +45,8 @@ integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cD
         });
     });
 
+    // Handle form submission
+    $(document).ready(function() {
     // Handle form submission
     $("#diseaseForm").submit(function (event) {
         event.preventDefault(); 
@@ -62,28 +69,46 @@ integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cD
             },
             dataType: 'json', 
             success: function (response) {
-            console.log("Server response:", response);
+    console.log("Server response:", response);
 
-            //to show result 
-            const resultContainer = $('#resultContainer');
-            resultContainer.empty();
-            
-            if (response.diseases && response.diseases.length > 0) {
-            resultContainer.append('<h2 class="mt-4 p-2">Diagnosis Result:</h2>');
-            const listGroup = $('<ol class="list-group list-group-numbered"></ol>');
+    // Show diagnosis result
+    const resultContainer = $('#resultContainer');
+    resultContainer.empty();
+    
+    if (response.diseases && response.diseases.diseases && response.diseases.diseases.length > 0) {
+        resultContainer.append('<h2 class="mt-4 p-2">Diagnosis Result:</h2>');
+        const listGroup = $('<ol class="list-group list-group-numbered"></ol>');
 
-            response.diseases.forEach((disease) => {
-                listGroup.append(`<li class="list-group-item">${disease}</li>`);
-            });
-            // Append the constructed list to the result container
-            resultContainer.append(listGroup);
-        }},
+        response.diseases.diseases.forEach((disease) => {
+            listGroup.append(`<li class="list-group-item">${disease}</li>`);
+        });
+        // Append the constructed list to the result container
+        resultContainer.append(listGroup);
+    }
+
+    // Show articles
+    const articlesContainer = $('#articlesContainer');
+    articlesContainer.empty();
+
+    if (response.diseases.articles && response.diseases.articles.length > 0) {
+        articlesContainer.append('<h2 class="mt-4 p-2">Related Articles:</h2>');
+        const articlesList = $('<ul class="list-group"></ul>');
+
+        response.diseases.articles.forEach((article) => {
+            articlesList.append(`<li class="list-group-item"><a href="${article.link}" target="_blank">${article.title}</a><p>${article.description}</p></li>`);
+        });
+        // Append the constructed list to the articles container
+        articlesContainer.append(articlesList);
+    }
+},
             error: function(error) {
                 console.error("Error:", error);
                 $('#resultContainer').html('<p>Error fetching diseases. Please try again.</p>');
             }
         });
     });
+});
+
 });
 
     async function sendMessage() {
@@ -120,6 +145,36 @@ integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cD
         chatMessages.innerHTML += errorMessage;
       }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+    const appointmentModal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+
+    // Event listener for when the modal is about to be shown
+    appointmentModal._element.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const doctorId = button.getAttribute('data-doctor-id');
+      document.getElementById('doctor_id').value = doctorId;
+    });
+  });
+
+// Use Bootstrap's Tab API
+var myTabs = new bootstrap.Tab(document.getElementById('pending-tab'));
+myTabs.show();
+
+// Add event listeners for tab changes
+document.getElementById('pending-tab').addEventListener('click', function () {
+  myTabs.show();
+});
+
+document.getElementById('upcoming-tab').addEventListener('click', function () {
+  myTabs.show();
+});
+
+document.getElementById('completed-tab').addEventListener('click', function () {
+  myTabs.show();
+});
+
+
 </script>
 </body>
 </html>

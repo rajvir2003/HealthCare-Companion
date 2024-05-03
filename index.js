@@ -7,8 +7,7 @@ import * as fs from 'fs/promises';
 import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
-import passport from "passport";
-import { Strategy } from "passport-local";
+import passport from "./controllers/auth.js";
 
 const app = express();
 const port = 3000;
@@ -31,14 +30,13 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
-const db = new pg.Client({
+const db = new pg.Pool({
   user: "postgres",
   host: "localhost",
   database: "healthAssist",
-  password: "password",
+  password: "Manni@1025",
   port: 5432
 });
-db.connect();
 
 app.get("/login", (req, res) => {
   res.render("login.ejs");
@@ -63,11 +61,8 @@ app.get("/profile", (req, res) => {
 app.get("/", (req, res) => {
   console.log("this is user");
   console.log(req.user);
-  if (req.isAuthenticated()) {
-    res.render("index.ejs");
-  } else {
-    res.redirect("/login");
-  }
+  res.render("index.ejs");
+  
 });
 
 app.post("/register", async (req, res) => {
@@ -110,6 +105,96 @@ app.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/login"
 }));
+
+
+app.get("/doctors", async (req, res) => {
+
+  if (req.isAuthenticated()) {
+    try {
+      const result = await db.query('SELECT * FROM doctor');
+      const doctors = result.rows;
+      var doctorId = doctors.doctor_id;
+      const user_id = req.user.id;
+      res.render('doctors.ejs', { doctors, doctorId,user_id});
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+
+app.post("/book-appointment", async (req, res) => {
+  try {
+    const patient_id = req.body.patient_id;
+    const doctor_id = req.body.doctor_id;
+    const time = req.body.time;
+    const date = req.body.date;
+    const problem = req.body.problem;
+
+    if (!patient_id || !doctor_id || !time || !date || !problem) {
+      return res.status(400).send("Invalid request data. Please provide all required fields.");
+    }
+
+    const checkResult = await db.query(
+      "SELECT * FROM appointment WHERE patient_id = $1 AND doctor_id = $2 AND time = $3 AND date = $4",
+      [patient_id, doctor_id, time, date]
+    );
+    if (checkResult.rows.length > 0) {
+      return res.send("Same appointment already exists.");
+    }
+
+    const insertResult = await db.query(
+      "INSERT INTO appointment (doctor_id, patient_id, date, time, problem_description, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [doctor_id, patient_id, date, time, problem, "pending"]
+    );
+    const newAppointment = insertResult.rows[0];
+    console.log("New Appointment:", newAppointment);
+    res.redirect("/doctors");
+  } catch (error) {
+    console.error("Error in /book-appointment:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/user-appointments", async (req, res) => {
+  const userId = req.user.id;
+  const statusFilter = req.query.status || 'pending'; // Default to 'pending' if no status is provided
+
+  try {
+    const result = await db.query(
+      "SELECT * FROM appointment WHERE patient_id = $1 AND status = $2 ORDER BY date, time",
+      [userId, statusFilter]
+    );
+
+    const appointments = result.rows;
+
+    res.render("user-appointments.ejs", { appointments, statusFilter });
+  } catch (error) {
+    console.error("Error fetching user appointments:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/delete-appointment", async (req, res) => {
+  const appointmentId = req.body.appointment_id;
+
+  try {
+    const result = await db.query(
+      "DELETE FROM appointment WHERE appointment_id = $1",
+      [appointmentId]
+    );
+
+    res.redirect("/user-appointments"); 
+  } catch (error) {
+    console.error("Error deleting appointment:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 app.get("/symptoms", async (req, res) => {
   try {
@@ -181,42 +266,6 @@ app.post('/api/query', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
-passport.use(new Strategy(async function verify(username, password, cb) {
-  try {
-    const result = await db.query(
-      "SELECT * FROM users WHERE email = $1",
-      [username]
-    );
-    if (result.rows.length > 0) {
-      const user = result.rows[0];
-      const storedHashedPassword = user.password;
-      bcrypt.compare(password, storedHashedPassword, (error, result) => {
-        if (error) {
-          return cb(error);
-        } else {
-          if (result) {
-            return cb(null, user);
-          } else {
-            console.log("wrong password");
-            return cb(null, false);
-          }
-        }
-      })
-    } else {
-      return cb("User not found");
-    }
-  } catch (error) {
-    return cb(error);
-  }
-}));
-
-passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
-})
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);

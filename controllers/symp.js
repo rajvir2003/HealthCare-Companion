@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
+import puppeteer from "puppeteer";
 
 const AUTH_SERVICE_URL = 'https://authservice.priaid.ch/login';
 const API_KEY = 'Jy36B_GMAIL_COM_AUT';
@@ -39,6 +40,51 @@ const readSymptomsFromFile = async () => {
   }
 };
 
+async function scrapeArticles(symptoms, gender, age, diseases) {
+const currentDate = new Date();
+const currentYear = currentDate.getFullYear();
+const agee=currentYear-age;
+
+  try {
+    const searchQuery = `${symptoms} ${agee+"years old"} ${gender} ${diseases}`.replace(/\s+/g, '+');
+    const url = `https://www.webmd.com/search?query=${searchQuery}&filter=Article`;
+
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(url);
+
+      // Wait for the search results to be loaded
+      await page.waitForSelector('.search-results-title-link');
+
+      // Extract article titles, descriptions, and links
+      const articles = await page.evaluate(() => {
+        const articlesData = [];
+        const titles = document.querySelectorAll('.search-results-title-link');
+        const descriptions = document.querySelectorAll('.search-results-description');
+        const links = document.querySelectorAll('.search-results-title-link');
+
+          titles.forEach((title, index) => {
+              const article = {
+                  title: title.textContent.trim(),
+                  description: descriptions[index].textContent.trim(),
+                  link: links[index].getAttribute('href')
+              };
+              articlesData.push(article);
+          });
+
+          return articlesData;
+      });
+
+      await browser.close();
+      return articles;
+  } catch (error) {
+      console.error('Error scraping articles:', error);
+      throw error;
+  }
+}
+
+
+
 // symptomate API call
 export const getDiagnosis = async (userSymptoms, gender, yearOfBirth) => {
   try {
@@ -59,9 +105,13 @@ export const getDiagnosis = async (userSymptoms, gender, yearOfBirth) => {
         language: 'en-gb',
       },
     });
-
     // Extract and return only disease names
-    return response.data.map(diagnosis => diagnosis.Issue.Name);
+    const diseases = response.data.map(diagnosis => diagnosis.Issue.Name);
+
+    // Scrape articles related to the symptoms, gender, year of birth, and disease names
+    const articles = await scrapeArticles(userSymptoms, gender, yearOfBirth, diseases);
+
+    return { diseases, articles };
   } catch (error) {
     console.error('Error in Symptomate API request:', error.response ? error.response.data : error.message);
     throw error;

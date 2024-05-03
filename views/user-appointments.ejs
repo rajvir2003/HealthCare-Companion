@@ -1,0 +1,36 @@
+<%- include("partials/header.ejs") %>
+
+<div class="container mt-5">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link <%= statusFilter === 'pending' ? 'active' : '' %>" href="/user-appointments?status=pending">Pending</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= statusFilter === 'upcoming' ? 'active' : '' %>" href="/user-appointments?status=upcoming">Upcoming</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= statusFilter === 'completed' ? 'active' : '' %>" href="/user-appointments?status=completed">Completed</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active">
+      <% appointments.forEach(appointment => { %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Date: <%= appointment.date %></h5>
+            <p class="card-text">Time: <%= appointment.time %></p>
+            <p class="card-text">Problem: <%= appointment.problem_description %></p>
+            <form action="/delete-appointment" method="post">
+              <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+
+<%- include("partials/footer.ejs") %>
