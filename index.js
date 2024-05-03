@@ -35,7 +35,7 @@ const db = new pg.Pool({
   user: "postgres",
   host: "localhost",
   database: "healthAssist",
-  password: "Manni@1025",
+  password: "pass",
   port: 5432
 });
 
@@ -49,18 +49,31 @@ app.get("/register", (req, res) => {
 
 app.get("/profile", async (req, res) => {
   if (req.isAuthenticated()) {
-    const user = await db.query(
-      "SELECT * FROM users WHERE id = $1",
-      [req.user.id]
-    );
-    res.render("profile.ejs", {
-      user: user.rows[0],
-      currYear: new Date().getFullYear()
-    });
+    try {
+      const user = await db.query(
+        "SELECT * FROM users WHERE id = $1",
+        [req.user.id]
+      );
+
+      if (user.rows.length > 0) {
+        res.render("profile.ejs", {
+          user: user.rows[0],
+          currYear: new Date().getFullYear()
+        });
+      } else {
+        res.status(404).send("User not found");
+      }
+    } catch (err) {
+
+      console.error("Error fetching user:", err);
+      res.status(500).send("Internal Server Error");
+    }
   } else {
+    // User not authenticated, redirect to login
     res.redirect("/login");
   }
 });
+
 app.post("/editProfile", async (req, res) => {
   const id = req.body.id;
   const username = req.body.username;
@@ -132,7 +145,6 @@ app.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/login"
 }));
-
 
 app.get("/doctors", async (req, res) => {
 
@@ -220,6 +232,33 @@ app.post("/delete-appointment", async (req, res) => {
     console.error("Error deleting appointment:", error.message);
     res.status(500).send("Internal Server Error");
   }
+});
+
+
+
+app.post("/editProfile", async (req, res) => {
+  const id = req.body.id;
+  const username = req.body.username;
+  const email = req.body.email;
+  const gender = req.body.gender;
+  const yearOfBirth = req.body.yearofbirth;
+  
+  try {
+    await db.query(
+      "UPDATE users SET username = $1, email = $2, gender = $3, yearofbirth = $4 WHERE id = $5",
+      [username, email, gender, yearOfBirth, id]
+    );
+    res.redirect("/profile");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/logout", (req, res) => {
+  req.logout((error) => {
+    if (error) console.log(error);
+    res.redirect("/login");
+  })
 });
 
 
