@@ -22,19 +22,19 @@ Have health-related queries? Our chatbot is here to assist you 24/7. Whether you
 ## Technologies Used
 
 - **Frontend**:
-- Bootstrap
-- EJS (Embedded JavaScript)
-- JavaScript
+  - Bootstrap
+  - EJS (Embedded JavaScript)
+  - JavaScript
 
 - **Backend**:
-- Node.js
-- Express
+  - Node.js
+  - Express
 
 - **Database**:
-- PostgreSQL
+  - PostgreSQL
 
 - **Libraries**:
-- Axios
-- Puppeteer
-- Passport
-- Bcrypt
+  - Axios
+  - Puppeteer
+  - Passport
+  - Bcrypt
