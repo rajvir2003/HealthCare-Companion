@@ -302,10 +302,10 @@ app.get("/news", async (req, res) => {
   if (req.isAuthenticated()) {
     try {
       const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${newsAPI_Key}`);
-      let newsArtices = response.data.articles;
-      const result = newsArtices.filter((news) => news.urlToImage != null && news.content != null);
-      console.log(result);
-      res.render("news.ejs", { news : result });
+      let newsArticles = response.data.articles;
+      // const result = newsArtices.filter((news) => news.urlToImage != null && news.content != null);
+      console.log(newsArticles);
+      res.render("news.ejs", { news : newsArticles });
     }
     catch (error) {
       console.log(error.message);
