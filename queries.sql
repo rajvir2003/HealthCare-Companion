@@ -18,7 +18,7 @@ CREATE TABLE doctors (
 
 CREATE TABLE appointment (
     appointment_id SERIAL PRIMARY KEY,
-    doctor_id INT REFERENCES doctor(doctor_id),
+    doctor_id INT REFERENCES doctors(doctor_id),
     patient_id INT REFERENCES users(id),
     date DATE,
     time TIME,

@@ -301,11 +301,11 @@ app.post("/predict-disease", async (req, res) => {
 app.get("/news", async (req, res) => {
   if (req.isAuthenticated()) {
     try {
-      const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${newsAPI_Key}`);
+      const response = await axios.get(`https://newsapi.org/v2/top-headlines?category=health&apiKey=${newsAPI_Key}`);
       let newsArticles = response.data.articles;
-      // const result = newsArtices.filter((news) => news.urlToImage != null && news.content != null);
-      console.log(newsArticles);
-      res.render("news.ejs", { news : newsArticles });
+      const result = newsArticles.filter((news) => news.urlToImage != null && news.content != null);
+      console.log(result);
+      res.render("news.ejs", { news : result });
     }
     catch (error) {
       console.log(error.message);
@@ -334,7 +334,7 @@ app.post('/api/query', async (req, res) => {
 });
 
 
-//doctr
+//doctor
 
 // Doctor login route
 app.get("/doctor/login", (req, res) => {
